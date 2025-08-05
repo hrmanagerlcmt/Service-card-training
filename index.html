@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบอบรมออนไลน์</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for better typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            /* New dark blue background */
+            background-color: #0a192f;
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        /* Custom class to hide elements */
+        .hidden {
+            display: none;
+        }
+        /* Style for the video container to maintain aspect ratio */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            max-width: 100%;
+            background: #000;
+        }
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        /* Modal styles */
+        .modal {
+            background-color: rgba(0, 0, 0, 0.7);
+        }
+        /* Custom class for the content cards for better readability over the background */
+        .content-card {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); /* For Safari */
+        }
+        /* Ripple effect styles */
+        .ripple {
+            position: fixed; 
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.6);
+            transform: scale(0);
+            animation: ripple-effect 0.6s linear;
+            pointer-events: none; /* Prevents the ripple from interfering with clicks */
+        }
+        @keyframes ripple-effect {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
+        <header class="text-center mb-8 bg-black/30 p-4 rounded-xl">
+            <h1 class="text-3xl md:text-4xl font-bold text-white">ระบบอบรมออนไลน์</h1>
+            <p class="text-gray-200 mt-2">กรุณากรอกข้อมูลและทำแบบทดสอบให้ครบถ้วน</p>
+        </header>
+
+        <!-- Page 1: Registration Form -->
+        <div id="page-register">
+            <div class="content-card p-8 rounded-xl shadow-2xl">
+                <h2 class="text-2xl font-bold mb-6 text-center">ลงทะเบียนเข้ารับการอบรม</h2>
+                <form id="register-form">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="firstName" class="block text-sm font-medium text-gray-700">ชื่อ</label>
+                            <input type="text" id="firstName" name="firstName" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="lastName" class="block text-sm font-medium text-gray-700">นามสกุล</label>
+                            <input type="text" id="lastName" name="lastName" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="position" class="block text-sm font-medium text-gray-700">ตำแหน่ง</label>
+                            <input type="text" id="position" name="position" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div>
+                            <label for="employeeId" class="block text-sm font-medium text-gray-700">รหัสพนักงาน</label>
+                            <input type="text" id="employeeId" name="employeeId" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="trainingDate" class="block text-sm font-medium text-gray-700">เลือกวันที่อบรม</label>
+                            <input type="date" id="trainingDate" name="trainingDate" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div class="mt-8 text-center">
+                        <button type="submit" class="w-full md:w-auto inline-flex justify-center py-3 px-12 border border-transparent shadow-sm text-lg font-medium rounded-full text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors">
+                            ถัดไป
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Page 2: Course Selection & Video Player -->
+        <div id="page-course" class="hidden">
+            <div class="content-card p-8 rounded-xl shadow-2xl">
+                <h2 class="text-2xl font-bold mb-6 text-center">เลือกหลักสูตรและรับชมวิดีโอ</h2>
+                <div id="course-selection">
+                    <p class="text-center mb-4">กรุณาเลือกหลักสูตรที่ต้องการอบรม</p>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50/50">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">ชื่อหลักสูตร</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">ระยะเวลา</th>
+                                    <th class="px-6 py-3 text-center text-xs font-medium text-gray-600 uppercase tracking-wider">เลือก</th>
+                                </tr>
+                            </thead>
+                            <tbody id="course-table-body" class="bg-white/50 divide-y divide-gray-200">
+                                <!-- Course rows will be injected by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div id="video-player-section" class="hidden mt-8">
+                    <h3 id="video-title" class="text-xl font-bold mb-4 text-center"></h3>
+                    <div class="video-container rounded-lg shadow-inner">
+                        <div id="player"></div>
+                    </div>
+                    <p class="text-center text-sm text-red-600 font-semibold bg-white/50 rounded-md p-2 mt-4">**ไม่สามารถเลื่อนหรือข้ามวิดีโอได้ กรุณารับชมจนจบ**</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pre-Video Warning Modal -->
+        <div id="pre-video-warning-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal">
+            <div class="content-card p-8 rounded-xl shadow-2xl max-w-lg w-full mx-4 text-center">
+                 <h3 class="text-2xl font-bold mb-4 text-yellow-600">ข้อควรทราบ!</h3>
+                 <p class="text-gray-700">จะมีคำถามปรากฏขึ้นระหว่างการรับชมวิดีโอ หากท่านไม่ตอบคำถามภายใน <span class="font-bold">50 วินาที</span> วิดีโอจะถูกรีสตาร์ทใหม่ตั้งแต่ต้น</p>
+                 <p class="text-gray-700 mt-2">และหากรับชมวิดีโอเสร็จเรียบร้อยแล้ว จะมีแบบทดสอบอีก 20 ข้อ และต้องผ่าน 80% ของข้อสอบทั้งหมด</p>
+                 <button id="start-video-btn" class="mt-6 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700">รับทราบและเริ่มรับชม</button>
+            </div>
+        </div>
+
+        <!-- In-Video Quiz Modal -->
+        <div id="in-video-quiz-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal">
+            <div class="content-card p-8 rounded-xl shadow-2xl max-w-lg w-full mx-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold">คำถามระหว่างรับชม</h3>
+                    <div id="quiz-timer" class="text-lg font-bold text-red-500 bg-red-100 rounded-full px-3 py-1">50</div>
+                </div>
+                <div id="in-video-quiz-content"></div>
+                <button id="submit-in-video-answer" class="mt-6 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700">ส่งคำตอบ</button>
+            </div>
+        </div>
+        
+        <!-- Time's Up Modal -->
+        <div id="times-up-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center modal">
+            <div class="content-card p-8 rounded-xl shadow-2xl max-w-lg w-full mx-4 text-center">
+                 <h3 class="text-2xl font-bold mb-4 text-red-600">หมดเวลา!</h3>
+                 <p class="text-gray-700">คุณตอบคำถามไม่ทันเวลาที่กำหนด วิดีโอจะเริ่มต้นใหม่</p>
+                 <button id="restart-video-btn" class="mt-6 w-full py-2 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-red-600 hover:bg-red-700">รับทราบ</button>
+            </div>
+        </div>
+        
+        <!-- Page 3: Post-Training Quiz -->
+        <div id="page-post-quiz" class="hidden">
+            <div class="content-card p-8 rounded-xl shadow-2xl">
+                <h2 class="text-2xl font-bold mb-6 text-center">แบบทดสอบหลังการอบรม</h2>
+                <form id="post-quiz-form">
+                    <div id="post-quiz-questions" class="space-y-8"></div>
+                    <div class="mt-8 text-center">
+                        <button type="submit" class="w-full md:w-auto inline-flex justify-center py-3 px-12 border border-transparent shadow-sm text-lg font-medium rounded-full text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
+                            ส่งแบบทดสอบ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Page 4: Results -->
+        <div id="page-results" class="hidden">
+            <div class="content-card p-8 rounded-xl shadow-2xl text-center">
+                <h2 class="text-2xl font-bold mb-4">ผลการอบรม</h2>
+                <!-- Pass Section -->
+                <div id="result-pass" class="hidden">
+                    <svg class="mx-auto h-16 w-16 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-3xl font-bold text-green-600 mt-4">ยินดีด้วย! คุณผ่านการอบรม</h3>
+                    <div class="text-left mt-6 bg-gray-50 p-4 rounded-lg border">
+                        <p id="result-fullname" class="text-lg"></p>
+                        <p id="result-position" class="text-md text-gray-600"></p>
+                        <p class="text-xl mt-2">คะแนนของคุณคือ: <span id="final-score-pass" class="font-bold">0</span> / 20</p>
+                    </div>
+                    <div class="mt-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-800 rounded-md text-left">
+                        <p class="font-bold">ขั้นตอนต่อไป:</p>
+                        <p>กรุณาถ่ายภาพหน้าจอนี้ และส่งไปที่ Line Official HR เพื่อยืนยันการผ่านอบรม</p>
+                        <p class="font-bold mt-2">ID Line: @niu2574a</p>
+                    </div>
+                </div>
+                <!-- Fail Section -->
+                <div id="result-fail" class="hidden">
+                     <svg class="mx-auto h-16 w-16 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <h3 class="text-3xl font-bold text-red-600 mt-4">ไม่ผ่านการอบรม</h3>
+                     <p class="text-xl mt-6">คะแนนของคุณคือ: <span id="final-score-fail" class="font-bold">0</span> / 20</p>
+                    <p class="text-gray-600 mt-2">กรุณาติดต่อผู้ดูแลเพื่อทำการอบรมอีกครั้ง</p>
+                </div>
+                 <p class="text-gray-500 mt-4 text-sm">ระบบได้บันทึกผลของท่านเรียบร้อยแล้ว</p>
+                 <!-- Back to Home Button -->
+                 <div class="mt-8">
+                     <button onclick="backToHome()" class="w-full md:w-auto inline-flex justify-center py-2 px-8 border border-gray-300 shadow-sm text-md font-medium rounded-full text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                         กลับไปยังหน้าหลัก
+                     </button>
+                 </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loading-spinner" class="hidden fixed inset-0 z-50 flex items-center justify-center modal">
+            <div class="animate-spin rounded-full h-32 w-32 border-t-4 border-b-4 border-blue-500"></div>
+        </div>
+
+    </div>
+
+    <!-- YouTube IFrame Player API -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+    <script>
+        // --- CONFIGURATION ---
+        // This URL is now dynamically inserted by Google Apps Script, making deployment easier.
+        const SCRIPT_URL = "<?!= ScriptApp.getService().getUrl(); ?>";
+        const PASS_PERCENTAGE = 0.80; // 80% passing criteria
+
+        // --- DATA & STATE ---
+        let userData = {};
+        let player;
+        let selectedCourse;
+        let inVideoQuizTriggered = [false, false, false, false, false];
+        let postQuizScore = 0;
+        let antiSeekInterval;
+        let quizTimerInterval;
+        let lastTime = -1; // Global variable for tracking last known time
+
+        // --- COURSE DATA ---
+        const courses = [
+            { id: 'course01', name: 'Service Car Refreshment', videoId: '2vxPtfq4e7Y', duration: 480, inVideoQuiz: [
+                { time: 200, question: 'การใช้โทรศัพท์เคลื่อนที่ขณะขับรถ Service Car ที่ถูกต้อง', options: ['ทำได้คุยตอนไหนก็ได้', 'ห้ามโดยเด็ดขาด ยกเว้นใช้อุปกรณ์แฮนด์ฟรี', 'ทำได้เฉพาะเมื่อรถติด','ทำได้ถ้าขับช้าๆ'], answer: 'ห้ามโดยเด็ดขาด ยกเว้นใช้อุปกรณ์แฮนด์ฟรี' },
+                { time: 260, question: 'สาเหตุของอุบัติเหตุที่เกิดขึ้นภายใน A0&B1 สาเหตุหลักเกิดจากอะไรมากที่สุด', options: ['การกระทำไม่ปลอดภัย', 'สภาพการณ์ที่ไม่ปลอดภัย', 'ถูกทุกข้อ','ผิดทุกข้อ'], answer: 'การกระทำไม่ปลอดภัย' },
+                { time: 320, question: 'ในการขับรถ Service Car ภายในบริษัท A0&B1ต้องใช้ความเร็วไม่เกินเท่าใด?', options: ['10 กิโลเมตร', '20 กิโลเมตร / ชั่วโมง', '30 กิโลเมตร / ชั่วโมง','40 กิโลเมตร / ชั่วโมง'], answer: '30 กิโลเมตร / ชั่วโมง' },
+                { time: 380, question: 'การปฎิบัติที่ถูกต้องในการขับรถยนต์ ของบริษัท A0&B1 ข้อใดถูกต้อง?', options: ['ห้ามสูบบุหรี่ภายในรถ', 'ห้ามไม่ให้ผู้ที่ไม่มีใบอนุญาติขับขี่ขับรถ Service Car เด็ดขาด', 'ต้องเปิดไฟไซเลน หรือ ไฟฉุกเฉิน ทุกครั้ง','ถูกทุกข้อ'], answer: 'ถูกทุกข้อ' },
+                { time: 440, question: 'ก่อนจะขับรถควรปฏิบัติอย่างไร', options: ['ตรวจสอบสภาพของรถ เช่น น้ำมันเครื่อง  น้ำหม้อพักน้ำ เป็นต้น', 'ตรวจสอบลมยางรถ และดอกยางรถยนต์', 'ระบบเบรคของรถยนต์ เพื่อความปลอดภัย','ถูกทุกข้อ'], answer: 'ถูกทุกข้อ' }
+            ], postQuiz: [
+                { question: 'ข้อ 1: ในการขับรถ Service Car ภายในบริษัท A0&B1ต้องใช้ความเร็วไม่เกินเท่าใด', options: ['10 กิโลเมตร', '20 กิโลเมตร / ชั่วโมง', '30 กิโลเมตร / ชั่วโมง', '40 กิโลเมตร / ชั่วโมง'], answer: '30 กิโลเมตร / ชั่วโมง' },
+                { question: 'ข้อ 2: ข้อใดต่อไปนี้เป็นการปฏิบัติที่ ถูกต้อง ขณะขับรถภายในท่าเรือ A0&B1', options: ['นาย ก ขับรถด้วยความเร็ว 60 กิโลเมตร/ชั่วโมง', 'นาย ข โทรศัพท์ขณะขับรถ', 'นาย ค คาดเข็มขัดนิรภัยขณะขับรถทุกครั้ง','นาย ง ขับรถด้วยความเร็วที่ 30 กิโลเมตร/ชั่วโมง แต่ไม่คาดเข็มขัดนิรภัย'], answer: 'นาย ค คาดเข็มขัดนิรภัยขณะขับรถทุกครั้ง' },
+                { question: 'ข้อ 3: สาเหตุของอุบัติเหตุที่เกิดขึ้นภายใน A0&B1 สาเหตุหลักเกิดจากอะไรมากที่สุด', options: ['การกระทำไม่ปลอดภัย', 'สภาพการณ์ที่ไม่ปลอดภัย', 'ถูกทุกข้อ','ผิดทุกข้อ'], answer: 'การกระทำไม่ปลอดภัย' },
+                { question: 'ข้อ 4: การปฎิบัติที่ถูกต้องในการขับรถยนต์ ของบริษัท A0&B1 ข้อใดถูกต้อง', options: ['ห้ามสูบบุหรี่ภายในรถ', 'ห้ามไม่ให้ผู้ที่ไม่มีใบอนุญาติขับขี่ขับรถ Service Car เด็ดขาด', 'ต้องเปิดไฟไซเลน หรือ ไฟฉุกเฉิน ทุกครั้ง','ถูกทุกข้อ'], answer: 'ถูกทุกข้อ' },
+                { question: 'ข้อ 5: รถที่บรรทุกของที่มีความยาวเกินตัวรถ ต้องปฎิบัติอย่างไร', options: ['ติดผ้าแดงที่ปลายวัสดุและมัดให้แน่นและใช้ตวามเร็วไม่เกิน 30 กม/ชม', 'วิ่งด้วยความเร็วเกิน 30 กม/ชม  และติดผ้าสีแดงที่ปลายวัสดุมัดหลวมๆ', 'ติดไฟกระพริบที่ปลายวัสดุและขับด้วยความเร็วสูง','ถูกเฉพาะข้อ ก และ ค'], answer: 'ติดผ้าแดงที่ปลายวัสดุและมัดให้แน่นและใช้ตวามเร็วไม่เกิน 30 กม/ชม' },
+                { question: 'ข้อ 6: บุคคลในข้อใดที่สามารถขับรถ Service Car ในบริษัท A0&B1 ได้อย่างถูกต้องที่สุด', options: ['นาย ก มีใบอนุญาติขับขี่รถยนต์แต่ไม่มีใบอนุญาติจากบริษัท', 'นาย ข มีใบอนุญาติขับขี่รถยนต์ และมีใบอนุญาติขับขี่ที่ทางบริษัท LCB1& LCMT  ออกให้', 'บุคคลที่ได้รับคำสั่งจากหัวหน้างานให้ขับรถยนต์ได้','ถูกทุกข้อ'], answer: 'นาย ข มีใบอนุญาติขับขี่รถยนต์ และมีใบอนุญาติขับขี่ที่ทางบริษัท LCB1& LCMT  ออกให้' },
+                { question: 'ข้อ 7: ก่อนจะขับรถควรปฏิบัติอย่างไร', options: ['ตรวจสอบสภาพของรถ เช่น น้ำมันเครื่อง  น้ำหม้อพักน้ำ เป็นต้น', 'ตรวจสอบลมยางรถ และดอกยางรถยนต์', 'ระบบเบรคของรถยนต์ เพื่อความปลอดภัย','ถูกทุกข้อ'], answer: 'ถูกทุกข้อ' },
+                { question: 'ข้อ 8: เมื่อเกิดอุบัติเหตุจากรถ Service Car พนักงานควรทำอย่างไรก่อน', options: ['แจ้งเพื่อนร่วมงานรับทราบก่อนอันดับแรก', 'แจ้งหัวหน้างานรับทราบก่อนอันดับแรก', 'แจ้งเจ้าหน้าที่ Safety รับทราบก่อนอันดับแรก','แจ้งไปยัง เบอร์ 191 ของหน่วยงานราชการ'], answer: 'แจ้งหัวหน้างานรับทราบก่อนอันดับแรก' },
+                { question: 'ข้อ 9: การจอดรถ Car Service สามารถจอดได้ที่ใดบ้างในพื้นที่', options: ['จอดแนวรั้วได้ทั้งหมด  โดยมีสัญลักษณ์และข้อความ CAR SERVICE', 'จอดในพื้นที่ลานตู้สินค้า ในพื้นที่วางตู้', 'จอดได้ทุกที่ ที่อยากจอด','ถูกทุกข้อ'], answer: 'จอดแนวรั้วได้ทั้งหมด  โดยมีสัญลักษณ์และข้อความ CAR SERVICE' },
+                { question: 'ข้อ 10: ความปลอดภัยในการทำงานเป็นหน้าที่ของใคร', options: ['เจ้าหน้าที่ความปลอดภัย (Safety Officer)', 'หัวหน้างาน', 'พนักงานทุกคน', 'ผู้บริหารระดับสูง'], answer: 'พนักงานทุกคน' },
+                { question: 'ข้อ 11: ในข้อบังคับของทางบริษัท LCB1&LCMT  เกี่ยวกับ  “แซง” รถมีว่าอย่างไร', options: ['ให้ขับรถตรงไปข้างหน้าเปิดไฟเลี้ยวก่อนแซงทุกครั้ง', 'ห้ามแซงทุกกรณี ให้วิ่งรถตามกันไปจนกว่าจะถึงจุดหมาย', 'ให้วิ่งสลับเลนได้กรณีที่มีรถช้าวิ่งอยู่ข้างหน้า', 'ให้สัญญาณแตรพร้อมเปิดไฟเลี้ยวแล้วถึงแซงได้'], answer: 'ห้ามแซงทุกกรณี ให้วิ่งรถตามกันไปจนกว่าจะถึงจุดหมาย' },
+                { question: 'ข้อ 12: การใช้โทรศัพท์เคลื่อนที่ขณะขับรถ Service Car ที่ถูกต้อง', options: ['ทำได้ถ้าจำเป็น', 'ห้ามโดยเด็ดขาด ยกเว้นใช้อุปกรณ์แฮนด์ฟรี', 'ทำได้เฉพาะเมื่อรถติด', 'ทำได้ถ้าขับช้าๆ'], answer: 'ห้ามโดยเด็ดขาด ยกเว้นใช้อุปกรณ์แฮนด์ฟรี' },
+                { question: 'ข้อ 13: ในขณะขับรถผู้ขับขี่รถยนต์ Service car  ต้องมีเอกสารหรือบัตรอนุญาติชนิดใดติดตังผู้ขับขี่', options: ['สำเนาภาพใบคู่มือจดทะเบียนรถ', 'สำเนาใบอนุญาติขับรถ', 'บัตรอนุญาติขับขี่รถยนต์ (ที่ทางบริษัทออกให้)', 'ใบขับขี่รถยนต์และบัตรประชาชน'], answer: 'บัตรอนุญาติขับขี่รถยนต์ (ที่ทางบริษัทออกให้)' },
+                { question: 'ข้อ 14: ป้ายความปลอดภัยที่มีพื้นสีเหลืองและสัญลักษณ์สีดำ หมายถึงอะไร', options: ['คำสั่ง (Mandatory)', 'เตือน (Warning)', 'ห้าม (Prohibition)', 'ข้อมูล (Information)'], answer: 'เตือน (Warning)' },
+                { question: 'ข้อ 15: หากพบเห็นการกระทำหรือสภาพการณ์ที่ไม่ปลอดภัย ควรทำอย่างไรเป็นอันดับแรก', options: ['แจ้งหัวหน้างานทันทีและถ่ายภาพลงOpenchat Line', 'ถ่ายรูปไว้เป็นหลักฐาน', 'เข้าไปแก้ไขด้วยตนเอง', 'ไม่ต้องสนใจเพราะไม่ใช่หน้าที่'], answer: 'แจ้งหัวหน้างานทันทีและถ่ายภาพลงOpenchat Line' },
+                { question: 'ข้อ 16: CODE รหัสลับการดูแลรถ   BE-WAGON   คืออะไร', options: ['วงดนตรีชื่อดังที่ร้องเพลงเกี่ยวกับรถยนต์', 'การนำรถเข้าตรวจสอบสภาพที่ศูนย์บริการ BE-WAGON  ที่เปิดบริการ', 'เป็นพื้นที่สำหรับรถขนาดใหญ่', 'เป็นพื้นที่ห้ามหยุดหรือจอดโดยเด็ดขาด'], answer: 'การนำรถเข้าตรวจสอบสภาพที่ศูนย์บริการ BE-WAGON  ที่เปิดบริการ' },
+                { question: 'ข้อ 17: การตรวจสอบรถ Service Car ประจำวัน (Daily Check) มีความสำคัญอย่างไร', options: ['เพื่อให้รถดูใหม่อยู่เสมอ', 'เพื่อป้องกันอุบัติเหตุจากความบกพร่องของรถ', 'การตรวจสภาพเครื่องยนต์และระบบและอุปกรณ์ความปลอดภัยต่างๆ ได้แก่  เบรค,ไฟฟ้า,น้ำ, ลมยาง,น้ำมัน     เชื้อเพลิง,น้ำมันเครื่อง,เสียงบกวน', 'เป็นรหัสเรียกรถยนต์รุ่นนั้นๆ'], answer: 'การตรวจสภาพเครื่องยนต์และระบบและอุปกรณ์ความปลอดภัยต่างๆ ได้แก่  เบรค,ไฟฟ้า,น้ำ, ลมยาง,น้ำมัน     เชื้อเพลิง,น้ำมันเครื่อง,เสียงรบกวน' },
+                { question: 'ข้อ 18: ผู้ขับขี่ที่จะเข้า – ออก ผ่านเข้าป้อม รปภ. (ป้อมหน้า AO&B1)  ต้องปฎิบัติตัวอย่างไรจึงจะถูกต้องที่สุด', options: ['แสกนบัตรก่อนเข้า – ออก  ทุกครั้ง', 'วิ่งผ่านไปได้เลยโดยไม่ต้องแสกนบัตร', 'บอกให้เจ้าหน้าที่ รปภ. เป็นผู้ที่แสกนบัตรให้', 'ไม่เข้ายอม จอดรถยนต์ข้างนอกแล้วเดินเข้าไป'], answer: 'แสกนบัตรก่อนเข้า – ออก  ทุกครั้ง' },
+                { question: 'ข้อ 19: ผู้ขับขี่จะต้องขับรถยนต์ห่างจากรถคันหน้าอย่างน้อยเท่าไหร่', options: ['15-25  เมตร', '30  เมตร', '45  เมตร', 'ประมาณ 2 ช่วงรถหรือ พอสมควรในระยะที่สามารถหยุดรถได้โดยปลอดภัย'], answer: '15-25  เมตร' },
+                { question: 'ข้อ 20: หากเกิดอุบัติเหตุเกี่ยวกับรถยนต์ในท่าเรือ  ท่านควรจะได้รับโทษอย่างไร', options: ['ได้รับใบเตือนและหักเงินค่าซ่อมแซม', 'ไม่รับผิดชอบใดๆทั้งสิ้น', 'ยอมชดใช่ค่าเสียหาย ครึ่งราคาของราคาค่าซ่อม', 'รอการสอบสวนจากทางผู้บังคับบัญชาและทีมงาน  และรับผิดชอบ'], answer: 'รอการสอบสวนจากทางผู้บังคับบัญชาและทีมงาน  และรับผิดชอบ' }
+            ]},
+            { id: 'course02', name: 'การปฐมพยาบาลเบื้องต้น (CPR)', videoId: 'Lur_4E9A3lI', duration: 600, inVideoQuiz: [], postQuiz: [] }
+        ];
+
+        // --- DOM ELEMENTS ---
+        const pages = { register: document.getElementById('page-register'), course: document.getElementById('page-course'), postQuiz: document.getElementById('page-post-quiz'), results: document.getElementById('page-results') };
+        const registerForm = document.getElementById('register-form');
+        const postQuizForm = document.getElementById('post-quiz-form');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const courseTableBody = document.getElementById('course-table-body');
+        const videoPlayerSection = document.getElementById('video-player-section');
+        const videoTitle = document.getElementById('video-title');
+        const preVideoWarningModal = document.getElementById('pre-video-warning-modal');
+        const startVideoBtn = document.getElementById('start-video-btn');
+        const inVideoQuizModal = document.getElementById('in-video-quiz-modal');
+        const inVideoQuizContent = document.getElementById('in-video-quiz-content');
+        const submitInVideoAnswerBtn = document.getElementById('submit-in-video-answer');
+        const quizTimerDisplay = document.getElementById('quiz-timer');
+        const timesUpModal = document.getElementById('times-up-modal');
+        const restartVideoBtn = document.getElementById('restart-video-btn');
+
+        // --- FUNCTIONS ---
+        function checkScriptURL() {
+            if (!SCRIPT_URL || SCRIPT_URL.includes("<?!")) {
+                console.error("SCRIPT_URL is not correctly set. It might not have been replaced by the Apps Script server.");
+            }
+            return true;
+        }
+
+        function showPage(pageId) {
+            Object.values(pages).forEach(page => page.classList.add('hidden'));
+            if (pages[pageId]) {
+                pages[pageId].classList.remove('hidden');
+            }
+        }
+
+        function toggleLoading(show) {
+            loadingSpinner.classList.toggle('hidden', !show);
+        }
+
+        function populateCourses() {
+            courseTableBody.innerHTML = '';
+            courses.forEach(course => {
+                const row = `<tr class="hover:bg-gray-100/50"><td class="px-6 py-4 whitespace-nowrap">${course.name}</td><td class="px-6 py-4 whitespace-nowrap">${Math.floor(course.duration / 60)} นาที</td><td class="px-6 py-4 whitespace-nowrap text-center"><button onclick="selectCourse('${course.id}')" class="text-white bg-blue-600 hover:bg-blue-700 font-medium rounded-lg text-sm px-5 py-2.5">เลือก</button></td></tr>`;
+                courseTableBody.innerHTML += row;
+            });
+        }
+
+        function selectCourse(courseId) {
+            selectedCourse = courses.find(c => c.id === courseId);
+            if (!selectedCourse) return;
+            userData.courseName = selectedCourse.name;
+            preVideoWarningModal.classList.remove('hidden');
+        }
+
+        function startVideo() {
+            preVideoWarningModal.classList.add('hidden');
+            document.getElementById('course-selection').classList.add('hidden');
+            videoPlayerSection.classList.remove('hidden');
+            videoTitle.textContent = selectedCourse.name;
+            if (player) {
+                player.loadVideoById(selectedCourse.videoId);
+            } else {
+                // This function is defined by the YouTube IFrame API script
+                window.onYouTubeIframeAPIReady = function() {
+                    player = new YT.Player('player', {
+                        height: '390', width: '640', videoId: selectedCourse.videoId,
+                        playerVars: { 'playsinline': 1, 'controls': 0, 'disablekb': 1, 'modestbranding': 1, 'rel': 0 },
+                        events: { 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
+                    });
+                }
+                // If the API is already loaded, call the function directly
+                if (window.YT && window.YT.Player) { onYouTubeIframeAPIReady(); }
+            }
+        }
+        
+        function onPlayerReady(event) {
+            event.target.playVideo();
+            lastTime = -1; // Reset lastTime when a new video is ready
+            antiSeekInterval = setInterval(() => {
+                if (player && typeof player.getCurrentTime === 'function') {
+                    const currentTime = player.getCurrentTime();
+                    // The main anti-seek check, works when the page is active
+                    if (lastTime !== -1 && currentTime > lastTime + 2.5) { // Allow 2.5s for buffering
+                        player.seekTo(lastTime, true);
+                    } else {
+                        lastTime = currentTime; // Only update lastTime if no seek is detected
+                    }
+                    
+                    // Trigger in-video quizzes
+                    selectedCourse.inVideoQuiz.forEach((quiz, index) => {
+                        if (currentTime >= quiz.time && !inVideoQuizTriggered[index]) {
+                            inVideoQuizTriggered[index] = true;
+                            player.pauseVideo();
+                            displayInVideoQuiz(quiz);
+                        }
+                    });
+                }
+            }, 1000);
+        }
+
+        function onPlayerStateChange(event) {
+            // This event is crucial for catching seeks when returning from fullscreen on mobile
+            if (event.data === YT.PlayerState.PLAYING) {
+                const currentTime = player.getCurrentTime();
+                if (lastTime !== -1 && currentTime > lastTime + 2.5) {
+                    player.seekTo(lastTime, true);
+                }
+            }
+            
+            if (event.data === YT.PlayerState.ENDED) {
+                clearInterval(antiSeekInterval);
+                showPage('postQuiz');
+                populatePostQuiz();
+            }
+        }
+
+        function displayInVideoQuiz(quiz) {
+            let optionsHTML = '';
+            quiz.options.forEach((option) => {
+                optionsHTML += `<label class="block mt-2"><input type="radio" name="in-video-option" value="${option}" class="mr-2"> ${option}</label>`;
+            });
+            inVideoQuizContent.innerHTML = `<p class="font-semibold">${quiz.question}</p>${optionsHTML}`;
+            inVideoQuizModal.classList.remove('hidden');
+            let timeLeft = 50;
+            quizTimerDisplay.textContent = timeLeft;
+            quizTimerInterval = setInterval(() => {
+                timeLeft--;
+                quizTimerDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) { handleTimesUp(); }
+            }, 1000);
+        }
+
+        function handleTimesUp() {
+            clearInterval(quizTimerInterval);
+            inVideoQuizModal.classList.add('hidden');
+            timesUpModal.classList.remove('hidden');
+        }
+
+        function restartVideo() {
+            timesUpModal.classList.add('hidden');
+            inVideoQuizTriggered = inVideoQuizTriggered.map(() => false);
+            player.seekTo(0, true);
+            player.playVideo();
+        }
+        
+        function displayResults(resultsData) {
+            const { userData, score, status } = resultsData;
+            const totalQuestions = selectedCourse ? selectedCourse.postQuiz.length : 20;
+            const resultPassDiv = document.getElementById('result-pass');
+            const resultFailDiv = document.getElementById('result-fail');
+
+            if (status === 'ผ่าน (Passed)') {
+                document.getElementById('result-fullname').textContent = `ชื่อ-นามสกุล: ${userData.firstName} ${userData.lastName}`;
+                document.getElementById('result-position').textContent = `ตำแหน่ง: ${userData.position}`;
+                document.getElementById('final-score-pass').textContent = `${score} / ${totalQuestions}`;
+                resultPassDiv.classList.remove('hidden');
+                resultFailDiv.classList.add('hidden');
+            } else {
+                document.getElementById('final-score-fail').textContent = `${score} / ${totalQuestions}`;
+                resultFailDiv.classList.remove('hidden');
+                resultPassDiv.classList.add('hidden');
+            }
+        }
+
+        function populatePostQuiz() {
+            const questionsContainer = document.getElementById('post-quiz-questions');
+            let questionsHTML = '';
+            selectedCourse.postQuiz.forEach((q, index) => {
+                let optionsHTML = '';
+                q.options.forEach(option => {
+                    optionsHTML += `<label class="block mt-2 hover:bg-blue-100/50 p-2 rounded-md cursor-pointer"><input type="radio" name="question-${index}" value="${option}" required class="mr-2"> ${option}</label>`;
+                });
+                questionsHTML += `<div class="p-4 rounded-lg bg-black/5"><p class="font-semibold">${q.question}</p><div class="mt-2 pl-4">${optionsHTML}</div></div>`;
+            });
+            questionsContainer.innerHTML = questionsHTML;
+        }
+
+        function backToHome() {
+            localStorage.removeItem('trainingResults');
+            // Instead of reloading, we just navigate to the first page.
+            // This is faster and avoids a full page refresh.
+            // However, a full reload is safer to reset all state.
+            location.reload(); 
+        }
+
+        // --- EVENT LISTENERS ---
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.addEventListener('click', function (e) {
+                if (e.target.tagName === 'HTML' || e.target.tagName === 'BODY' && e.clientX >= document.documentElement.clientWidth) return;
+                
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                const size = 50;
+                ripple.style.left = `${e.clientX - size / 2}px`; 
+                ripple.style.top = `${e.clientY - size / 2}px`;
+                this.appendChild(ripple);
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+
+            const savedResults = localStorage.getItem('trainingResults');
+            if (savedResults) {
+                const resultsData = JSON.parse(savedResults);
+                userData = resultsData.userData;
+                selectedCourse = courses.find(c => c.name === userData.courseName);
+                displayResults(resultsData);
+                showPage('results');
+            } else {
+                showPage('register');
+                populateCourses();
+            }
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('trainingDate').setAttribute('min', today);
+        });
+
+        registerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(registerForm);
+            userData = {
+                firstName: formData.get('firstName'), lastName: formData.get('lastName'),
+                position: formData.get('position'), employeeId: formData.get('employeeId'),
+                trainingDate: formData.get('trainingDate'),
+            };
+            localStorage.removeItem('trainingResults');
+            showPage('course');
+        });
+        
+        startVideoBtn.addEventListener('click', startVideo);
+        restartVideoBtn.addEventListener('click', restartVideo);
+
+        submitInVideoAnswerBtn.addEventListener('click', () => {
+            const selectedOption = document.querySelector('input[name="in-video-option"]:checked');
+            if (!selectedOption) { 
+                // Using a custom, non-blocking alert would be better in a real app.
+                alert('กรุณาเลือกคำตอบ'); 
+                return;
+            }
+            clearInterval(quizTimerInterval);
+            inVideoQuizModal.classList.add('hidden');
+            player.playVideo();
+        });
+
+        postQuizForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            checkScriptURL();
+            toggleLoading(true);
+            
+            postQuizScore = 0;
+            const formData = new FormData(postQuizForm);
+            const userAnswers = [];
+            selectedCourse.postQuiz.forEach((q, index) => {
+                const userAnswer = formData.get(`question-${index}`);
+                const isCorrect = userAnswer === q.answer;
+                if (isCorrect) { postQuizScore++; }
+                userAnswers.push({ question: q.question, userAnswer: userAnswer, correctAnswer: q.answer, isCorrect: isCorrect });
+            });
+
+            const passingScore = Math.ceil(selectedCourse.postQuiz.length * PASS_PERCENTAGE);
+            const passStatus = postQuizScore >= passingScore ? 'ผ่าน (Passed)' : 'ไม่ผ่าน (Failed)';
+            
+            const resultsData = { userData, score: postQuizScore, status: passStatus, quizCompleted: true };
+            localStorage.setItem('trainingResults', JSON.stringify(resultsData));
+            
+            displayResults(resultsData);
+            showPage('results'); 
+            
+            const finalData = { 
+                userData: userData, 
+                courseName: selectedCourse.name, 
+                score: postQuizScore, 
+                status: passStatus, 
+                // Convert the answers array to a JSON string for storage in a single cell
+                quizAnswers: JSON.stringify(userAnswers) 
+            };
+
+            // --- FIX FOR "Failed to fetch" ERROR ---
+            // We now send the data as FormData, which is more robust for cross-origin requests.
+            // The browser will set the correct 'Content-Type' header automatically.
+            const payload = new FormData();
+            payload.append('jsonData', JSON.stringify(finalData));
+
+            fetch(SCRIPT_URL, {
+                method: 'POST', 
+                body: payload
+            })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Google Sheet Response:", data);
+                if (data.result !== 'success') {
+                    throw new Error(data.error || 'Unknown error from server');
+                }
+            })
+            .catch(error => {
+                console.error('Error submitting results:', error);
+                alert(`เกิดข้อผิดพลาดในการบันทึกผลลัพธ์ลง Google Sheet แต่ผลลัพธ์ของท่านได้ถูกบันทึกไว้ในเครื่องแล้ว\n\nรายละเอียดข้อผิดพลาด: ${error.message}`);
+            })
+            .finally(() => {
+                toggleLoading(false);
+            });
+        });
+    </script>
+</body>
+</html>
